@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
 
 function createWindow () {
@@ -7,7 +7,19 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    x: 0,
+    y: 0,
+    minHeight: 600,
+    maxHeight: 1080,
+    minWidth: 800,
+    maxWidth: 1920,
+    fullscreenable: false,
+    // resizable: false,
+    // frame: false,
+    title: 'Electron App',
     webPreferences: {
+      // nodeIntegration: true,
+      // contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     }
   })
@@ -22,9 +34,13 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+let fs = require('fs');
+
 app.whenReady().then(() => {
   createWindow()
-
+  ipcMain.handle('getFiles', async () => {
+    return fs.readdirSync('.');
+  })
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
